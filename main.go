@@ -5,62 +5,43 @@ import (
 	"log"
 	"net/http"
 
-	socketio "github.com/googollee/go-socket.io"
+	"github.com/gorilla/websocket"
 )
 
-func main() {
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
-	server := socketio.NewServer(nil)
-
-	myRooms := []string{}
-
-	server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		fmt.Println("connected:", s.ID())
-		return nil
-	})
-
-	server.OnEvent("/room", "listAll", func(s socketio.Conn, room string) {
-		for i := 0; i < len(myRooms); i++ {
-			s.Emit(myRooms[i])
+func echo(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer conn.Close()
+	for {
+		mt, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Fatal(err)
+			break
 		}
-	})
+		fmt.Printf("%s", message)
+		err = conn.WriteMessage(mt, message)
+		if err != nil {
+			log.Fatal(err)
+			break
+		}
+	}
+}
+func connect(w http.ResponseWriter, r *http.Request) {
+	message := "Connected"
+	fmt.Printf("recv: %s", message)
+}
 
-	server.OnEvent("/room", "create", func(s socketio.Conn, room string) {
-		myRooms = append(myRooms, room) // Array of rooms
-		s.SetContext(room)
-	})
-
-	server.OnEvent("/", "notice", func(s socketio.Conn, msg string) {
-		fmt.Println("notice:", msg)
-		s.Emit("reply", "have "+msg)
-	})
-
-	server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
-		s.SetContext(msg)
-		return "recv " + msg
-	})
-
-	server.OnEvent("/", "bye", func(s socketio.Conn) string {
-		last := s.Context().(string)
-		s.Emit("bye", last)
-		s.Close()
-		return last
-	})
-
-	server.OnError("/", func(s socketio.Conn, e error) {
-		fmt.Println("meet error:", e)
-	})
-
-	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
-		fmt.Println("closed", reason)
-	})
-
-	go server.Serve()
-	defer server.Close()
-
-	http.Handle("/socket.io/", server)
-	http.Handle("/", http.FileServer(http.Dir("./asset")))
-	log.Println("Serving at localhost:8000...")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+func main() {
+	http.HandleFunc("/echo", echo)
+	http.HandleFunc("/", connect)
+	http.ListenAndServe(":8000", nil)
 }

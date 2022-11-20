@@ -1,95 +1,42 @@
+index.html
+
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
   <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font: 13px Helvetica, Arial;
-      }
-      li {
-        cursor: pointer;
-        padding:1rem 0 0.5rem 3rem;
-      }
-      form {
-        background: #000;
-        padding: 3px;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-      }
-      #create_room {
-        position: relative;
-      }
-      form input {
-        border: 0;
-        padding: 10px;
-        width: 90%;
-        margin-right: 0.5%;
-      }
-      form button {
-        width: 9%;
-        background: rgb(130, 224, 255);
-        border: none;
-        padding: 10px;
-      }
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messages li {
-        padding: 5px 10px;
-      }
-      #messages li:nth-child(odd) {
-        background: #eee;
-      }
-    </style>
+    <meta charset="UTF-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Simple Websocket Connection</title>
   </head>
+
   <body>
-    <ul id="fora">
-      <li id="room1">ROOM#1</li>
-      <li id="room2">ROOM#2</li>
-      <li id="room3">ROOM#3</li>
-    </ul>
+    <input id="input" type="text" />
 
-    <ul id="messages"></ul>
-    <form id="message_input" action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <button onclick="send()">Send</button>
+
+    <pre id="output"></pre>
+
     <script>
-      var socket = io();
-      var s2 = io("/chat");
-      var s3 = io("/room");
 
-      socket.on("reply", function (msg) {
-        $("#messages").append($("<li>").text(msg));
-      });
+      const input = document.getElementById("input");
+      const output = document.getElementById("output");
+      const socket = new WebSocket("ws://localhost:8000/echo");
 
-      $("form").submit(function () {
-        s2.emit("msg", $("#m").val(), function (data) {
-          $("#messages").append($("<li>").text(data));
-        });
+      socket.onopen = function () {
+      output.innerHTML += "Status: Connected\n";
+          };
 
-        socket.emit("notice", $("#m").val());
-
-        $("#m").val("");
-        return false;
-      });
-
-      // --------------------------------
-
-      var el = document.getElementById("fora");
-      el.addEventListener("click", function (e) {
-        alert(e.target.id);
-        console.log(typeof e.target.id)
-      });
+      socket.onmessage = function (e) {
+      output.innerHTML += "Server: " + e.data + "\n";
+          };
+      function send() {
+      socket.send(input.value);
+      input.value = "";
+          }
     </script>
   </body>
 </html>
