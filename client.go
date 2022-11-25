@@ -18,8 +18,8 @@ type Client struct {
 	// Hub
 	Hub *Hub
 
-	// Channel name
-	Channel string
+	// Room name
+	Room string
 
 	// username
 	Username string
@@ -44,18 +44,18 @@ func (c *Client) Read() {
 			log.Println("Error while reading websocket message: ", err)
 			return
 		}
-		log.Println(message)
+		// log.Println(message.Type)
 		switch message.Type {
 
 		case "join":
-			log.Println("User joined", message.Payload)
+			//	log.Println("User joined", message.Payload)
 			c.Username = message.Payload.By
 			var m *WSMessage = &WSMessage{
 				Type: "join",
 				Payload: Message{
-					Body:    strconv.Itoa(len(c.Hub.Clients[message.Payload.Channel])),
-					By:      message.Payload.By,
-					Channel: message.Payload.Channel,
+					Body: strconv.Itoa(len(c.Hub.Clients[message.Payload.Room])),
+					By:   message.Payload.By,
+					Room: message.Payload.Room,
 				},
 			}
 			c.Hub.Broadcast <- m
@@ -64,33 +64,12 @@ func (c *Client) Read() {
 			var m *WSMessage = &WSMessage{
 				Type: "message",
 				Payload: Message{
-					Body:    message.Payload.Body,
-					By:      message.Payload.By,
-					Channel: message.Payload.Channel,
+					Body: message.Payload.Body,
+					By:   message.Payload.By,
+					Room: message.Payload.Room,
 				},
 			}
-			c.Hub.Broadcast <- m
 
-		case "typing":
-			var m *WSMessage = &WSMessage{
-				Type: message.Type,
-				Payload: Message{
-					By:      c.Username,
-					Channel: message.Payload.Channel,
-				},
-			}
-			log.Println("Typing:", m)
-			c.Hub.Broadcast <- m
-
-		case "stoptyping":
-			var m *WSMessage = &WSMessage{
-				Type: message.Type,
-				Payload: Message{
-					By:      c.Username,
-					Channel: message.Payload.Channel,
-				},
-			}
-			log.Println("StopTyping:", m)
 			c.Hub.Broadcast <- m
 		}
 	}

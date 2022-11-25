@@ -17,7 +17,7 @@ var upgrader *websocket.Upgrader = &websocket.Upgrader{
 	CheckOrigin:     func(*http.Request) bool { return true },
 }
 
-func ws(w http.ResponseWriter, r *http.Request, hub *Hub, channel string) {
+func ws(w http.ResponseWriter, r *http.Request, hub *Hub, room string) {
 	// upgrade http request to websocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
 	// upgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -27,10 +27,10 @@ func ws(w http.ResponseWriter, r *http.Request, hub *Hub, channel string) {
 
 	// new client
 	client := &Client{
-		Conn:    conn,
-		Send:    make(chan *WSMessage),
-		Hub:     hub,
-		Channel: channel,
+		Conn: conn,
+		Send: make(chan *WSMessage),
+		Hub:  hub,
+		Room: room,
 	}
 
 	// register client to hub

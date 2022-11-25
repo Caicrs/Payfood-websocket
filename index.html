@@ -1,348 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatty</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=PT+Sans&display=swap");
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatty</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
+      * {
+        box-sizing: border-box;
+        font-family: "PT Sans", sans-serif;
+      }
 
-    * {
-      box-sizing: border-box;
-      font-family: "PT Sans", sans-serif;
-    }
+      html,
+      body {
+        height: 100%;
+        min-height: 100%;
+        background-color: rgb(116, 116, 116);
+        padding: 0;
+        margin: 0;
+        color: black;
+      }
 
-    html,
-    body {
-      height: 100%;
-      min-height: 100%;
-      background-color: white;
-      padding: 0;
-      margin: 0;
-    }
+      #root {
+        height: 100%;
+      }
 
-    #root {
-      height: 100%;
-    }
+      #container {
+        height: 100%;
+        width: 100%;
+        margin: 0 auto;
 
-    #container {
-      height: 100%;
-      width: 100%;
-      margin: 0 auto;
+        display: flex;
+      }
 
-      display: flex;
-    }
+      #rooms {
+        height: 100%;
+        width: 0;
+        max-width: 200px;
+        background-color: rgba(250, 250, 250);
+        transition: width 300ms ease-in;
+        overflow: hidden;
+      }
 
-    #rooms {
-      height: 100%;
-      width: 0;
-      max-width: 200px;
-      background-color: rgba(250, 250, 250);
-      transition: width 300ms ease-in;
-      overflow: hidden;
-    }
+      #rooms > div {
+        padding: 0.5rem;
+      }
 
-    #rooms > div {
-      padding: 0.5rem;
-    }
-    
-    #rooms.open {
-      width: 70%;
-    }
+      #rooms.open {
+        width: 70%;
+      }
 
-    #wrapper {
-      flex: 1;
+      #wrapper {
+        flex: 1;
 
-      display: flex;
-      flex-direction: column;
-    }
+        display: flex;
+        flex-direction: column;
+      }
 
-    #wrapper > header {
-      padding: 0.25rem;
-    }
-    
-    #wrapper > div {
-      padding: 0.25rem;
-    }
+      #wrapper > header {
+        padding: 0.25rem;
+      }
 
-    #messages {
-      flex: 1;
-      border-top: 1px solid gray;
-      border-bottom: 1px solid gray;
-      overflow-y: scroll;
-    }
+      #wrapper > div {
+        padding: 0.25rem;
+      }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+      #messages {
+        flex: 1;
+        border-top: 1px solid gray;
+        border-bottom: 1px solid gray;
+        overflow-y: scroll;
+      }
 
-    #header {
-      font-size: 1.25rem;
-      font-weight: 700;
-      padding: 0.5rem 0;
-    }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    #chat-input form {
-      display: flex;
-      gap: 0.25rem;
-      padding-top: 0.25rem;
-    }
+      #header {
+        font-size: 1.25rem;
+        font-weight: 700;
+        padding: 0.5rem 0;
+      }
 
-    form #input {
-      flex: 1;
-    }
+      #chat-input form {
+        display: flex;
+        gap: 0.25rem;
+        padding-top: 0.25rem;
+      }
 
-    #input input {
-      width: 100%;
-      padding: 0.25rem;
-    }
+      form #input {
+        flex: 1;
+      }
 
-    #submit button {
-      height: 100%;
-    }
+      #input input {
+        width: 100%;
+        padding: 0.25rem;
+      }
 
-    .message {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(200, 200, 200, 0.25);
-    }
+      #submit button {
+        height: 100%;
+      }
 
-    .add-message {
-      text-align: center;
-    }
+      .message {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(200, 200, 200, 0.25);
+      }
 
-    ul {
-      list-style: none;
-      padding: 0;
-    }
+      .add-message {
+        text-align: center;
+      }
 
-    ul li {
-      padding: 0.25rem;
-    }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
 
-    .typing {
-      color: rgba(50, 50, 50, 0.75);
-      font-size: 0.8rem;
-    }
-  </style>
-</head>
+      ul li {
+        padding: 0.25rem;
+      }
 
-<body>
-  <!-- root -->
-  <div id="root">
-    <div id="container">
-      <!-- Rooms -->
-      <div id="rooms">
-        <div>
-          <div>Rooms</div>
-          <ul></ul>
-        </div>
-      </div>
+      .typing {
+        color: rgba(50, 50, 50, 0.75);
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
 
-      <!-- Wrapper -->
-      <div id="wrapper">
-        <!-- header -->
-        <header>
+  <body>
+    <!-- root -->
+    <div id="root">
+      <div id="container">
+        <!-- Rooms -->
+        <div id="rooms">
           <div>
-            <button id="rooms-menu">Rooms</button>
+            <div>Rooms</div>
+            <ul></ul>
           </div>
-
-          <div id="header">
-            #{{ .room }}
-          </div>
-
-          <div>
-            <span id="online">{{ .users }}</span> online
-          </div>
-        </header>
-
-        <!-- messages -->
-        <div id="messages">
         </div>
 
-        <!-- chat input -->
-        <div id="chat-input">
-          <div class="typing"></div>
-          <form>
-            <div id="input">
-              <input type="text" placeholder="Say Hi! 👋">
+        <!-- Wrapper -->
+        <div id="wrapper">
+          <!-- header -->
+          <header>
+            <div>
+              <button id="rooms-menu">Rooms</button>
             </div>
-            <div id="submit">
-              <button type="submit">SEND</button>
-            </div>
-          </form>
+
+            <div id="header">#{{ .room }}</div>
+
+            <div><span id="online">{{ .users }}</span> online</div>
+          </header>
+
+          <!-- messages -->
+          <ul id="messages_msg"></ul>
+          <div id="messages"></div>
+
+          <!-- chat input -->
+          <div id="chat-input">
+            <div class="typing"></div>
+            <form>
+              <div id="input">
+                <input type="text" placeholder="Say Hi! 👋" />
+              </div>
+              <div id="submit">
+                <button type="submit">SEND</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script>
+    <script>
+      // Rooms
+      const rooms = ["general", "ideas", "projects", "music"];
 
-    // Rooms
-    const rooms = [
-      "general",
-      "ideas",
-      "projects",
-      "music"
-    ]
-
-    let username = localStorage.getItem("chatty-username")
-    while (!username || !username.trim()) {
-      username = prompt("Enter a username")
-      if (username.trim()) {
-        localStorage.setItem("chatty-username", username.trim())
-      }
-    }
-
-    const url = new URL(window.location.href);
-    const wsURL = (url.protocol === "https:" ? "wss://" : "ws://") + (url.host) + "/ws" + (url.pathname)
-    const ws = new WebSocket(wsURL)
-    const room = url.pathname.replace("/", "")
-
-    const form = document.querySelector("form")
-    const roomList = document.querySelector("ul")
-    const header = document.querySelector("#header")
-    const messageInput = document.querySelector("input")
-    const ty = document.querySelector(".typing")
-    const online = document.querySelector("#online")
-    const menu = document.querySelector("#rooms-menu")
-
-    menu.addEventListener("click", function () {
-      document.querySelector("#rooms").classList.toggle("open")
-    })
-
-    let currentTyping
-
-    console.log(wsURL)
-
-    rooms.forEach(r => {
-      const item = document.createElement("li")
-      const a = document.createElement("a")
-      a.setAttribute("href", "/" + r)
-      a.textContent = "#" + r
-      item.appendChild(a)
-      roomList.appendChild(item)
-    })
-
-    ws.addEventListener("open", function () {
-      const m = {
-      type: "join",
-      payload: {
-        by: username,
-        room: "general"
-      }
-    }
-      ws.send(JSON.stringify(m))
-    })
-
-    ws.addEventListener("message", function (message) {
-      console.log(JSON.parse(message.data))
-      const data = JSON.parse(message.data)
-      switch (data.type) {
-        case "join":
-          console.log("Join")
-          join(data.payload)
-          break
-        case "left":
-          left(data.payload)
-          break
-        case "message":
-          add(data.payload)
-          break
-        case "typing":
-          typing(data.payload)
-          break
-        case "stoptyping":
-          stoptyping(data.payload)
-          break
-        default:
-          break
-      }
-    })
-
-    form.onsubmit = function (e) {
-      e.preventDefault();
-      const m = {
-        type: "message",
-        payload: {
-          body: messageInput.value,
-          by: username,
-          room
+      let username = localStorage.getItem("chatty-username");
+      while (!username || !username.trim()) {
+        username = prompt("Enter a username");
+        if (username.trim()) {
+          localStorage.setItem("chatty-username", username.trim());
         }
       }
-      console.log(m)
-      ws.send(JSON.stringify(m))
-      messageInput.value = ""
-    }
 
-    function join(message) {
-      const messages = document.querySelector("#messages")
-      const ele = document.createElement("div")
-      ele.classList.add("message", "add-message")
-      ele.textContent = "🤖: " + message.by + " has joined the room"
-      messages.appendChild(ele)
-      online.textContent = parseInt(message.body, 10)
-    }
+      const url = new URL(window.location.href);
+      const wsURL =
+        (url.protocol === "https:" ? "wss://" : "ws://") +
+        url.host +
+        "/ws" +
+        url.pathname;
+      const ws = new WebSocket(wsURL);
+      const room = url.pathname.replace("/", "");
 
-    function add(message) {
-      console.log("Add message: ", message)
-      const messages = document.querySelector("#messages")
-      const ele = document.createElement("div")
-      ele.className = "message"
-      ele.textContent = message.by + ": " + message.body
-      messages.appendChild(ele)
-    }
+      const form = document.querySelector("form");
+      const roomList = document.querySelector("ul");
+      const header = document.querySelector("#header");
+      const messageInput = document.querySelector("input");
+      const ty = document.querySelector(".typing");
+      const online = document.querySelector("#online");
+      const menu = document.querySelector("#rooms-menu");
 
-    function left(message) {
-      const messages = document.querySelector("#messages")
-      const ele = document.createElement("div")
-      ele.classList.add("message", "add-message")
-      ele.textContent = "🤖: " + message.by + " has left the room"
-      messages.appendChild(ele)
-      online.textContent = parseInt(message.body, 10)
-    }
+      menu.addEventListener("click", function () {
+        document.querySelector("#rooms").classList.toggle("open");
+      });
 
-    function typing(message) {
-      console.log("typing: ", message)
-      if (message.by === username) return;
-      ty.textContent = message.by + " is typing ..."
-      currentTyping = message.by
-      console.log("Currently typing: ", currentTyping)
-    }
+      let currentTyping;
 
-    function stoptyping(message) {
-      console.log("stoptyping: ", message)
-      if (message.by === username) return
-      if (message.by !== currentTyping) return
-      ty.textContent = ""
-      currentTyping = null
-    }
+      console.log(wsURL);
 
-    messageInput.addEventListener("focusin", function () {
-      console.log("Focus in")
-      const m = {
-        type: "typing",
-        payload: {
-          room,
+      rooms.forEach((r) => {
+        const item = document.createElement("li");
+        const a = document.createElement("a");
+        a.setAttribute("href", "/" + r);
+        a.textContent = "#" + r;
+        item.appendChild(a);
+        roomList.appendChild(item);
+      });
+
+      ws.addEventListener("open", function () {
+        const m = {
+          type: "join",
+          payload: {
+            by: username,
+            room: "general",
+          },
+        };
+        ws.send(JSON.stringify(m));
+      });
+
+console.log(ws)
+
+      ws.addEventListener("message", function (message) {
+        console.log(message.data)
+        const data = JSON.parse(message.data);
+        switch (data.type) {
+          case "join":
+            console.log("Join");
+            join(data.payload);
+            break;
+          case "left":
+            left(data.payload);
+            break;
+          case "message":
+            add(data.payload);
+            break;
+          default:
+            break;
         }
-      }
-      ws.send(JSON.stringify(m))
-    })
+      });
 
-    messageInput.addEventListener("focusout", function () {
-      console.log("Focus out")
-      const m = {
-        type: "stoptyping",
-        payload: {
-          room,
-        }
-      }
-      ws.send(JSON.stringify(m))
-    })
-  </script>
-</body>
+      form.onsubmit = function (e) {
+        e.preventDefault();
+        const m = {
+          type: "message",
+          payload: {
+            body: messageInput.value,
+            by: username,
+            room,
+          },
+        };
+        ws.send(JSON.stringify(m));
+        messageInput.value = "";
+      };
 
+      function join(message) {
+        const messages = document.querySelector("#messages");
+        const ele = document.createElement("div");
+        ele.classList.add("message", "add-message");
+        ele.textContent = "🤖: " + message.by + " has joined the room";
+        messages.appendChild(ele);
+        online.textContent = parseInt(message.body, 10);
+      }
+
+      function add(message) {
+        const messages = document.querySelector("#messages");
+        const ele = document.createElement("div");
+        ele.className = "message";
+        ele.textContent = message.by + ": " + message.body;
+        messages.appendChild(ele);
+      }
+
+      function left(message) {
+        const messages = document.querySelector("#messages");
+        const ele = document.createElement("div");
+        ele.classList.add("message", "add-message");
+        ele.textContent = "🤖: " + message.by + " has left the room";
+        messages.appendChild(ele);
+        online.textContent = parseInt(message.body, 10);
+      }
+
+      function typing(message) {
+        console.log("typing: ", message);
+        if (message.by === username) return;
+        ty.textContent = message.by + " is typing ...";
+        currentTyping = message.by;
+        console.log("Currently typing: ", currentTyping);
+      }
+
+      function stoptyping(message) {
+        console.log("stoptyping: ", message);
+        if (message.by === username) return;
+        if (message.by !== currentTyping) return;
+        ty.textContent = "";
+        currentTyping = null;
+      }
+
+      messageInput.addEventListener("focusin", function () {
+        console.log("Focus in");
+        const m = {
+          type: "typing",
+          payload: {
+            room,
+          },
+        };
+        ws.send(JSON.stringify(m));
+      });
+
+      messageInput.addEventListener("focusout", function () {
+        console.log("Focus out");
+        const m = {
+          type: "stoptyping",
+          payload: {
+            room,
+          },
+        };
+        ws.send(JSON.stringify(m));
+      });
+    </script>
+  </body>
 </html>
