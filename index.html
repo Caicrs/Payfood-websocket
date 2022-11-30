@@ -239,7 +239,7 @@ console.log(ws)
         const data = JSON.parse(message.data);
         switch (data.type) {
           case "join":
-            console.log("Join");
+          
             join(data.payload);
             break;
           case "left":
@@ -268,6 +268,7 @@ console.log(ws)
       };
 
       function join(message) {
+        console.log(message.body);
         const messages = document.querySelector("#messages");
         const ele = document.createElement("div");
         ele.classList.add("message", "add-message");
@@ -277,6 +278,7 @@ console.log(ws)
       }
 
       function add(message) {
+        console.log(message.body);
         const messages = document.querySelector("#messages");
         const ele = document.createElement("div");
         ele.className = "message";
@@ -285,6 +287,7 @@ console.log(ws)
       }
 
       function left(message) {
+        console.log(message.body);
         const messages = document.querySelector("#messages");
         const ele = document.createElement("div");
         ele.classList.add("message", "add-message");
