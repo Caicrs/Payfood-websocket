@@ -44,12 +44,14 @@ func (c *Client) Read() {
 			log.Println("Error while reading websocket message: ", err)
 			return
 		}
-		// log.Println(message.Type)
+		// var messageProduct WSProductOrder
+		log.Println(message.Type)
 		switch message.Type {
 
 		case "join":
 			//	log.Println("User joined", message.Payload)
 			c.Username = message.Payload.By
+
 			var m *WSMessage = &WSMessage{
 				Type: "join",
 				Payload: Message{
@@ -58,6 +60,7 @@ func (c *Client) Read() {
 					Room: message.Payload.Room,
 				},
 			}
+
 			c.Hub.Broadcast <- m
 
 		case "message":
@@ -69,7 +72,6 @@ func (c *Client) Read() {
 					Room: message.Payload.Room,
 				},
 			}
-
 			c.Hub.Broadcast <- m
 		}
 	}

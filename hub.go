@@ -32,6 +32,7 @@ func (h *Hub) add(c *Client) {
 	}
 	h.Clients[c.Room][c] = true
 	h.mutex.Unlock()
+	log.Println(c.Username)
 	log.Printf("Client added to room #%s, Number of clients in room: %d\n", c.Room, len(h.Clients[c.Room]))
 }
 
@@ -43,6 +44,7 @@ func (h *Hub) delete(c *Client) {
 		c.Conn.Close()
 	}
 	h.mutex.Unlock()
+
 	var m *WSMessage = &WSMessage{
 		Type: "left",
 		Payload: Message{
@@ -77,5 +79,6 @@ func (h *Hub) Run() {
 			log.Println("Reached broadcast channel", m)
 			h.broadcast(m)
 		}
+
 	}
 }

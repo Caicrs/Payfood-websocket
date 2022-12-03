@@ -157,7 +157,9 @@
 
           <!-- messages -->
           <ul id="messages_msg"></ul>
+          <ul id="dynamicList"></ul>
           <div id="messages"></div>
+          <div onclick="test()">change room</div>
 
           <!-- chat input -->
           <div id="chat-input">
@@ -178,6 +180,11 @@
     <script>
       // Rooms
       const rooms = ["general", "ideas", "projects", "music"];
+
+      function test(){
+        rooms.push("NEW MUSIC");
+        console.log(rooms)
+      }
 
       let username = localStorage.getItem("chatty-username");
       while (!username || !username.trim()) {
@@ -232,14 +239,10 @@
         ws.send(JSON.stringify(m));
       });
 
-console.log(ws)
-
       ws.addEventListener("message", function (message) {
-        console.log(message.data)
         const data = JSON.parse(message.data);
         switch (data.type) {
           case "join":
-          
             join(data.payload);
             break;
           case "left":
@@ -247,6 +250,8 @@ console.log(ws)
             break;
           case "message":
             add(data.payload);
+          case "order":
+            order(data.payload);
             break;
           default:
             break;
@@ -258,15 +263,69 @@ console.log(ws)
         const m = {
           type: "message",
           payload: {
-            body: messageInput.value,
+            body: {
+              client: "client-name",
+              marketplace: "general-marketplace",
+              table: 1,
+              products: [
+                {
+                  id: "product-id-1",
+                  name: "product-name-1",
+                  price: 12.99,
+                },
+                {
+                  id: "product-id-2",
+                  name: "product-name-2",
+                  price: 22.99,
+                },
+              ],
+              totalPrice: 12.99,
+              date: "20/20/2022",
+              hour: "9:10",
+            },
             by: username,
-            room,
+            room: room,
           },
         };
         ws.send(JSON.stringify(m));
         messageInput.value = "";
       };
 
+      /*
+      form.onsubmit = function (e) {
+        e.preventDefault();
+        const m = {
+          type: "message",
+          payload: {
+            body: {
+              client: "client-name",
+              marketplace: "general-marketplace",
+              table: 1,
+              products: [
+                {
+                  id: "product-id-1",
+                  name: "product-name-1",
+                  price: 12.99,
+                },
+                {
+                  id: "product-id-2",
+                  name: "product-name-2",
+                  price: 22.99,
+                },
+              ],
+              totalPrice: 12.99,
+              date: "20/20/2022",
+              hour: "9:10",
+            },
+          },
+          by: username,
+          room: room,
+        };
+        console.log(JSON.stringify(m));
+        ws.send(JSON.stringify(m));
+        messageInput.value = "";
+      };
+ */
       function join(message) {
         console.log(message.body);
         const messages = document.querySelector("#messages");
@@ -278,12 +337,20 @@ console.log(ws)
       }
 
       function add(message) {
-        console.log(message.body);
+        var data = message.body;
         const messages = document.querySelector("#messages");
         const ele = document.createElement("div");
         ele.className = "message";
-        ele.textContent = message.by + ": " + message.body;
-        messages.appendChild(ele);
+        console.log(data)
+      }
+
+      function order(message) {
+        console.log(message);
+        // const messages = document.querySelector("#messages");
+        // const ele = document.createElement("div");
+        // ele.className = "message";
+        // ele.textContent = message.by + ": " + message.body;
+        // messages.appendChild(ele);
       }
 
       function left(message) {
